@@ -7,16 +7,6 @@
 
 using namespace std;
 
-
-struct point
-{
-	vector<double> pos;
-	long star_ind;
-
-	point(vector<double> pos_in, long star_in);
-
-};
-
 struct bounding_box
 {
 
@@ -33,29 +23,32 @@ struct bounding_box
 class OctTree
 {
 	public:	
-		const int QT_NODE_CAPACITY=1;
+		int QT_NODE_CAPACITY;
 		bounding_box boundary;
 
-		vector<nbd_object> node_stars;
+		vector<nbd_object*> node_stars;
 
 		nbd_object *COM=nullptr;
 
+		
 		//Children Nodes
 		
-		OctTree* oct_1;
-		OctTree* oct_2;
-		OctTree* oct_3;
-		OctTree* oct_4;
+		OctTree* oct_1=nullptr;		
+		OctTree* oct_2=nullptr;
+		OctTree* oct_3=nullptr;
+		OctTree* oct_4=nullptr;
 
-		OctTree* oct_5;
-		OctTree* oct_6;
-		OctTree* oct_7;
-		OctTree* oct_8;
+		OctTree* oct_5=nullptr;
+		OctTree* oct_6=nullptr;
+		OctTree* oct_7=nullptr;
+		OctTree* oct_8=nullptr;
 
-		OctTree(bounding_box boundary_in);
-		bool insert(nbd_object P_in);
-		bool subdivide();
-		vector<point> query();
+		OctTree(vector<double> center_in,float halfDimension_in);
+		OctTree();
+		bool insert(nbd_object *P_in);
+		void subdivide();
+
+		void print_tree();
 
 };
 

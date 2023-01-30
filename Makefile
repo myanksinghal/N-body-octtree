@@ -1,9 +1,9 @@
 CC=gcc
-CFLAGS=-I. -lstdc++ -lm
+CFLAGS=-I. -g -lstdc++ -lm -Wall -O 
 DEPS = consts.h lin_alg.h nbd_object.h nbd_sys.h octtree.h 
 OBJ = main.o lin_alg.o nbd_object.o nbd_sys.o octtree.o
 
-%.o: %.c $(DEPS)
+%.o: %.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 main: $(OBJ)
