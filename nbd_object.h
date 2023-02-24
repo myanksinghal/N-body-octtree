@@ -13,13 +13,17 @@ class nbd_object
 		float m;
 		vector<double> r;
 		vector<double> v;
-		vector<double> F;
+		vector<double> F_0;
+		vector<double> F_1;
+		vector<double> F_0_t0;
+		vector<double> F_1_t0;
+
 
 		nbd_object(long id_in,float m_in,vector<double> r_in, vector<double> v_in);
-		void update_force(vector<double> const &F_new);
 		void advance_timestep(double del_t);
-
-		vector<double> calculate_force(nbd_object p2);
+		void corrections(double del_t);
+		void primary_time_advance(double del_t);
+		void calculate_force(nbd_object *p2);
 		void print_info();
 };
 

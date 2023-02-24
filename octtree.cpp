@@ -1,6 +1,7 @@
 #include "octtree.h"
 #include "lin_alg.h"
 #include "nbd_object.h"
+#include "consts.h"
 #include <cstdio>
 #include <memory>
 #include <vector>
@@ -21,30 +22,22 @@ center=tem;
 halfDimension=-1;
 }
 
-bool bounding_box::containsPoint(nbd_object P)
+bool bounding_box::containsPoint(nbd_object *P_in)
 {
-	P.print_info();
-	printf("Cent %2.2f\n",center[0]);
-	printf("Cent %2.2f\n",center[1]);
-	printf("Cent %2.2f\n",center[2]);
-	printf("r0 %2.2f\n",P.r[0]);
-	printf("r1 %2.2f\n",P.r[1]);
-	printf("r2 %2.2f\n",P.r[2]);
-	printf("HW %2.2f\n",halfDimension);
-	
-	if(center[0]-halfDimension<=P.r[0])printf("tes tru");
 
-	if(center[0]-halfDimension<=P.r[0] && P.r[0]<=center[0]+halfDimension && 
-		center[1]-halfDimension<=P.r[1] && P.r[1]<=center[1]+halfDimension &&
-		center[2]-halfDimension<=P.r[2] && P.r[2]<=center[2]+halfDimension)
+
+	bool cond=this->center[0]-this->halfDimension<=P_in->r[0] && P_in->r[0]<=this->center[0]+this->halfDimension && 
+		this->center[1]-this->halfDimension<=P_in->r[1] && P_in->r[1]<=this->center[1]+this->halfDimension &&
+		this->center[2]-this->halfDimension<=P_in->r[2] && P_in->r[2]<=this->center[2]+this->halfDimension;
+	if(cond)
 	{
-		printf("Truuu");
-		return true;
-
+	return true;
 	}
-	
-	printf("Falsee");
+	else 
+	{
 	return false;
+	}
+
 
 }
 
@@ -67,43 +60,35 @@ OctTree::OctTree(vector<double> center_in,float halfDimension_in)
 
 bool OctTree::insert(nbd_object *P_in)
 {
-	printf("Insertion started\n");
 	//obj doesnt belong to this tree
-	printf("bb box size is %5.3f\n",boundary.halfDimension);
-	printf("Cent %2.2f\n",boundary.center[0]);
 
-	P_in->print_info();
+//	P_in->print_info();
 
-	bool cond=boundary.center[0]-boundary.halfDimension<=P_in->r[0] && P_in->r[0]<=boundary.center[0]+boundary.halfDimension && 
-		boundary.center[1]-boundary.halfDimension<=P_in->r[1] && P_in->r[1]<=boundary.center[1]+boundary.halfDimension &&
-		boundary.center[2]-boundary.halfDimension<=P_in->r[2] && P_in->r[2]<=boundary.center[2]+boundary.halfDimension;
-	if(!cond)
-	{
-	printf("Inside copy works");
-	return false;
-
-	}
 
 
 
 	//printf("contain point inside insert %d",boundary.containsPoint(P_in));
-/*	if(!boundary.containsPoint(P_in))
-	{	printf("Object doesnt belong in boundary");
+	if(!boundary.containsPoint(P_in))
+	{//	printf("Object doesnt belong in boundary\n");
 		return false;
 	}
-*/
+
 	//if there is space and no subdivision
 
 	if(node_stars.size()<QT_NODE_CAPACITY && oct_1==nullptr)
-	{	printf("No subdivision needed");
+	{	
 		node_stars.push_back(P_in);
+		this->COM=new nbd_object(-1,P_in->m,P_in->r,P_in->v);
+		this->COM->r=scaling_vector(this->COM->r, this->COM->m);
+
 		return true;
 	}
 
 	if(oct_1==nullptr)
-	{	printf("Subdiv needed");
+	{	
 		this->subdivide();
-		
+		delete this->COM;
+		this->COM=nullptr;
 		for(int i=0; i<QT_NODE_CAPACITY;i++)
 		{	nbd_object *temp_star=node_stars.back();
 			node_stars.pop_back();
@@ -145,34 +130,25 @@ bool OctTree::insert(nbd_object *P_in)
 }
 
 void OctTree::subdivide()
-{	printf("Subdivide Occuring\n");
+{	
 	vector<double> c=boundary.center;
 	float hw=boundary.halfDimension/2;
 	this->oct_1= new OctTree(vector<double> {c[0]+hw,c[1]+hw,c[2]+hw},hw);
-printf("Subdivide 1 done\n");
 
 	this->oct_2= new OctTree(vector<double> {c[0]+hw,c[1]-hw,c[2]+hw},hw);
 
-printf("Subdivide 2 done\n");
 	this->oct_3= new OctTree(vector<double> {c[0]-hw,c[1]+hw,c[2]+hw},hw);
 
-printf("Subdivide 3 done\n");
 	this->oct_4= new OctTree(vector<double> {c[0]-hw,c[1]-hw,c[2]+hw},hw);
 
-printf("Subdivide 4 done\n");
 	this->oct_5= new OctTree(vector<double> {c[0]+hw,c[1]+hw,c[2]-hw},hw);
 
-printf("Subdivide 5 done\n");
 	this->oct_6= new OctTree(vector<double> {c[0]+hw,c[1]-hw,c[2]-hw},hw);
 
-printf("Subdivide 6 done\n");
 	this->oct_7= new OctTree(vector<double> {c[0]-hw,c[1]+hw,c[2]-hw},hw);
 
-printf("Subdivide 7 done\n");
 	this->oct_8= new OctTree(vector<double> {c[0]-hw,c[1]-hw,c[2]-hw},hw);
 
-	printf("Subdivide 8 done\n");
-	printf("Subdiv Done");
 }
 
 void OctTree::print_tree()
@@ -207,4 +183,78 @@ void OctTree::print_tree()
 
 }
 
+OctTree::~OctTree()
+{
+	delete this->COM;
+	if(this->oct_1!=nullptr)
+	{
+		delete this->oct_1;
+		delete this->oct_2;
+		delete this->oct_3;
+		delete this->oct_4;
+		delete this->oct_5;
+		delete this->oct_6;
+		delete this->oct_7;
+		delete this->oct_8;
+	}
+	
+}
+
+bool OctTree::traverse(nbd_object *P_in)
+{
+	if(this->node_stars.size()==0 && this->oct_1==nullptr)
+	{
+		return true;
+	}
+	float s=this->boundary.halfDimension;
+	vector<double> corrected_r_COM=scaling_vector(this->COM->r,1/this->COM->m);
+	double d=norm(elementwise_sum(P_in->r,scaling_vector(corrected_r_COM,-1)));
+	if(s/d<THETA_THRESHOLD)
+	{
+		//force evaluation
+		nbd_object *temporary_obj= new nbd_object(-1,this->COM->m,corrected_r_COM,vector<double>{-1,-1,-1});
+		P_in->calculate_force(temporary_obj);
+
+	//	printf("Force calculated from COM is %3.3f,%3.3f,%3.3f\n",F_0[0],F_0[1],F_0[2]);
+		delete temporary_obj;	
+		return true;
+	}
+	else if (this-> oct_1==nullptr) 
+	{
+		//Going through each particle in the box
+
+		for(int i=0; i<QT_NODE_CAPACITY;i++)
+		{
+			nbd_object *temp_star=node_stars.back();
+			if(temp_star->id!=P_in->id)
+			{
+				//force eval
+				P_in->calculate_force(temp_star);
+
+			//	printf("Force calculated from ind is %3.3f,%3.3f,%3.3f\n",F_0[0],F_0[1],F_0[2]);
+				
+			//	printf("Force before update %3.3f,%3.3f,%3.3f\n",P_in->F[0],P_in->F[1],P_in->F[2]);
+
+			//	printf("Force after update %3.3f,%3.3f,%3.3f\n",P_in->F[0],P_in->F[1],P_in->F[2]);
+			}
+
+		}
+
+		return true;
+
+	}
+	else{
+			this->oct_1->traverse(P_in);	
+			this->oct_2->traverse(P_in);	
+			this->oct_3->traverse(P_in);	
+			this->oct_4->traverse(P_in);	
+			this->oct_5->traverse(P_in);	
+			this->oct_6->traverse(P_in);	
+			this->oct_7->traverse(P_in);	
+			this->oct_8->traverse(P_in);	
+			return true;
+	}
+
+
+}
 

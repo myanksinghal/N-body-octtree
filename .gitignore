@@ -1,2 +1,7 @@
 *.o
 .vscode/
+anim/
+*.mov
+*.csv
+*DS_Store
+*.ipynb

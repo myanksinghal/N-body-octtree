@@ -12,13 +12,15 @@ class nbd_sys
 	public:
 		long num_objects;
 		vector<nbd_object> stars;
-		
-		nbd_sys(long num_objects_in,float mass_lower, float mass_upper);
+		double time;
+		double max_size;
+
+		nbd_sys(long num_objects_in,float mass_lower, float mass_upper,double max_size);
 		void print_sys();
 		void force_calculations();
-		void update(double del_t);
-		void store_snapshot();
-
+		void apply_force_updates(double del_t);
+		void apply_corrections(double del_t);
+		void store_snapshot(FILE *outfile);
 };
 
 #endif

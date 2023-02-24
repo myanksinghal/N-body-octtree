@@ -1,6 +1,7 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
-const float G=6.67430E-11;
-
+const float G=1.0;
+const double THETA_THRESHOLD=0.3;
+const double SOFTENING_PARAM=0.1;
 #endif

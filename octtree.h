@@ -14,7 +14,7 @@ struct bounding_box
 	float halfDimension;
 	bounding_box();
 	bounding_box(vector<double> center_in,float halfDimension_in);
-	bool containsPoint(nbd_object P);
+	bool containsPoint(nbd_object *P_in);
 //	bool intersects_BB(bounding_box other_BB);
 
 };
@@ -45,9 +45,10 @@ class OctTree
 
 		OctTree(vector<double> center_in,float halfDimension_in);
 		OctTree();
+		~OctTree();
 		bool insert(nbd_object *P_in);
 		void subdivide();
-
+		bool traverse(nbd_object *P_in);
 		void print_tree();
 
 };
