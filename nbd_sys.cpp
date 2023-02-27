@@ -1,6 +1,12 @@
 #include "nbd_sys.h"
 #include "nbd_object.h"
+#include <cstdio>
+#include <cstdlib>
 #include <random>
+#include <string>
+
+using namespace std;
+
 nbd_sys::nbd_sys(long num_objects_in,float mass_lower, float mass_upper,double max_size)
 {
 	uniform_real_distribution<double> mass_dist(mass_lower,mass_upper); 
@@ -21,6 +27,30 @@ nbd_sys::nbd_sys(long num_objects_in,float mass_lower, float mass_upper,double m
 	this->time=0.0;
 
 
+}
+
+//TODO: Finish this to add input file for stars
+nbd_sys::nbd_sys(FILE *infile)
+{	
+	if(infile==NULL)
+		exit(EXIT_FAILURE);
+	double mass;
+	vector<double> r_in(3);
+	vector<double> v_in(3);
+	long id=0;
+	double max_size=0.0;
+	while (fscanf(infile, "%lf %lf %lf %lf %lf %lf %lf", &mass, &r_in[0],&r_in[1],&r_in[2],&v_in[0],&v_in[1],&v_in[2] )!=EOF) {
+		nbd_object temp_star(id,mass,r_in,v_in);
+		stars.push_back(temp_star);
+		id++;
+		if(max_size<norm(r_in))
+		{
+			max_size=norm(r_in);
+		}
+	}
+	this->num_objects=id;
+	this->time=0;
+	this->max_size=max_size;
 }
 
 void nbd_sys::print_sys()
@@ -84,4 +114,8 @@ void nbd_sys::store_snapshot(FILE * outfile)
           nbd_object f=*it;
 		  fprintf(outfile,"%8.3f,%7d,%7.8f,%7.12f,%7.12f,%8.10f\n",this->time, f.id, f.m, f.r[0], f.r[1],f.r[2]);
 		}
+}
+
+void nbd_sys::external_potential()
+{
 }

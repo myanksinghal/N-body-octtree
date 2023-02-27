@@ -7,6 +7,10 @@
 
 using namespace std;
 
+/**
+ * @brief A bounding box that is a cube
+ * 
+ */
 struct bounding_box
 {
 
@@ -19,11 +23,14 @@ struct bounding_box
 
 };
 
-
+/**
+ * @brief OctTree class which contains all the stars and capability of recusively dividing.
+ * 
+ */
 class OctTree
 {
 	public:	
-		int QT_NODE_CAPACITY;
+		int OT_NODE_CAPACITY;
 		bounding_box boundary;
 
 		vector<nbd_object*> node_stars;

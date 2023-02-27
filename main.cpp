@@ -40,14 +40,18 @@ temp_sys.print_sys();
 
 //nbd_object test2(13,12.4,r_int2,v_int);
 
-nbd_sys temp_sys(1000,1.0,10.0,1000.0);
+//nbd_sys temp_sys(100,1.0,10.0,1000.0);
+FILE *infile;
+infile=fopen("n6.pos", "r");
+nbd_sys temp_sys(infile);
+fclose(infile);
 vector<double> cent={0.0,0.0,0.0};
 FILE *outfile;
 
 outfile=fopen("test_data_file.csv","w" );
 fprintf(outfile,"time,id,mass,x,y,z\n");
 double del_t=1;
-for(int num_updates=0; num_updates<10000;num_updates++)
+for(int num_updates=0; num_updates<100;num_updates++)
 {	
 	temp_sys.store_snapshot(outfile);
 	printf("Root size is %5.2f\n",temp_sys.max_size);
@@ -93,6 +97,7 @@ for(int num_updates=0; num_updates<10000;num_updates++)
 
 }
 fclose(outfile);
+
 
 return 0;
 }

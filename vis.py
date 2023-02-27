@@ -8,8 +8,8 @@ from joblib import Parallel, delayed
 df=pd.read_csv('test_data_file.csv')
 
 save_path='anim/'
-N_particles=1000
-num_updates=10000
+N_particles=10000
+num_updates=100
 frames=num_updates;
 def process(num):
     fig = plt.figure()
@@ -19,9 +19,9 @@ def process(num):
     ax.clear()
     for i in range(0,len(red_df)):
         ax.scatter(red_df.iloc[i].x, red_df.iloc[i].y, red_df.iloc[i].z, s=red_df.iloc[i].mass)
-    ax.set_xlim(-1000,1000)
-    ax.set_ylim(-1000,1000)
-    ax.set_zlim(-1000,1000)
+    ax.set_xlim(-100,100)
+    ax.set_ylim(-100,100)
+    ax.set_zlim(-100,100)
     fig.savefig(f"{save_path}{num}.png")
     plt.close(fig)
     
