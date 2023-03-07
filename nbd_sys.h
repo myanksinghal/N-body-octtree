@@ -18,15 +18,18 @@ class nbd_sys
 		vector<nbd_object> stars;
 		double time;
 		double max_size;
-
+		double total_KE;
+		double total_PE;
 		nbd_sys(long num_objects_in,float mass_lower, float mass_upper,double max_size);
 		nbd_sys(FILE *infile);
 		void print_sys();
 		void force_calculations();
 		void apply_force_updates(double del_t);
-		void apply_corrections(double del_t);
+		double apply_corrections(double del_t);
 		void store_snapshot(FILE *outfile);
 		void external_potential();
+		void system_energy();
+		void scale_standard_units();
 
 };
 

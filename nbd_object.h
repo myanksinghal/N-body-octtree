@@ -11,6 +11,9 @@ class nbd_object
 	public:
 		long id;
 		float m;
+		double PE;
+		double KE;
+		double sugg_del_t;
 		vector<double> r;
 		vector<double> v;
 		vector<double> F_0;

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <vector>
 #include <algorithm>
+#include <math.h>
 #include "consts.h"
 #include "nbd_object.h"
 #include "lin_alg.h"
@@ -40,7 +41,7 @@ temp_sys.print_sys();
 
 //nbd_object test2(13,12.4,r_int2,v_int);
 
-//nbd_sys temp_sys(100,1.0,10.0,1000.0);
+//nbd_sys temp_sys(2,1.0,1.0,10.0);
 FILE *infile;
 infile=fopen("n6.pos", "r");
 nbd_sys temp_sys(infile);
@@ -49,11 +50,15 @@ vector<double> cent={0.0,0.0,0.0};
 FILE *outfile;
 
 outfile=fopen("test_data_file.csv","w" );
-fprintf(outfile,"time,id,mass,x,y,z\n");
-double del_t=1;
-for(int num_updates=0; num_updates<100;num_updates++)
+fprintf(outfile,"time,id,mass,x,y,z,vx,vy,vz,KE,PE\n");
+double del_t=0.001;
+double output_timestep=0.1;
+double integration_time=100;
+bool start_flag=true;
+while(integration_time>0)
 {	
-	temp_sys.store_snapshot(outfile);
+	integration_time-=del_t;
+	output_timestep-=del_t;
 	printf("Root size is %5.2f\n",temp_sys.max_size);
 	OctTree *tree= new OctTree(cent,temp_sys.max_size);
 	printf("Tree Creation success\n");	
@@ -66,15 +71,30 @@ for(int num_updates=0; num_updates<100;num_updates++)
 	for(auto it=temp_sys.stars.begin();it<temp_sys.stars.end();++it)
 	{
 		tree->traverse(&*it);
+		it->KE=(0.5)*(it->m)*pow(norm(it->v),2);
 	}
 	delete tree;
+	
+	if(output_timestep<0)
+	{
+		temp_sys.store_snapshot(outfile);
+		output_timestep=0.1;
+	}
+
+	temp_sys.system_energy();
+	printf("Total Energy of system is %1.5f\n",temp_sys.total_KE+temp_sys.total_PE);
+
+	printf("Energy of system is %1.5f, %1.5f\n",temp_sys.total_KE,temp_sys.total_PE);
+
 //	auto t=norm(temp_sys.stars[0].F);
 //	printf("force of particle 0 is %8.8f", t);
 //	temp_sys.stars[0].print_info();
 
-	temp_sys.apply_force_updates(del_t);
-
 	//temp_sys.stars[0].print_info();
+	//temp_sys.stars[1].print_info();
+	temp_sys.apply_force_updates(del_t);
+	
+	
 	OctTree *tree_corrections= new OctTree(cent,temp_sys.max_size);
 	printf("Tree Creation success\n");	
 	for(auto star_iterator=begin(temp_sys.stars); star_iterator!=end(temp_sys.stars); ++star_iterator)
@@ -86,13 +106,17 @@ for(int num_updates=0; num_updates<100;num_updates++)
 	//tree->print_tree();
 	for(auto it=temp_sys.stars.begin();it<temp_sys.stars.end();++it)
 	{
-		tree_corrections->traverse(&*it);
+	//	tree_corrections->traverse(&*it);
 	}
 	delete tree_corrections;
-	temp_sys.apply_corrections(del_t);
 
+	//temp_sys.system_energy();
+	//printf("Total Energy of system is %1.5f\n",temp_sys.total_KE+temp_sys.total_PE);
 
+	//printf("Energy of system is %1.5f, %1.5f\n",temp_sys.total_KE,temp_sys.total_PE);
 
+	//del_t=temp_sys.apply_corrections(del_t);
+	printf("Del t is %3.3f\n \n",del_t);
 
 
 }

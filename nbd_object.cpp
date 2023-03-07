@@ -13,6 +13,10 @@ nbd_object::nbd_object(long id_in,float m_in,vector<double> r_in, vector<double>
 			F_1={0.0,0.0,0.0};
 			F_0_t0={0.0,0.0,0.0};
 			F_1_t0={0.0,0.0,0.0};
+			PE=0.0;
+			KE=0.0;
+			sugg_del_t=0.0;
+
 
 }
 void nbd_object::calculate_force(nbd_object *p2)
@@ -38,6 +42,7 @@ void nbd_object::calculate_force(nbd_object *p2)
 	this->F_1=elementwise_sum(this->F_1, F_1);
 	//
 	//printf("Force in calc force %3.3f,%3.3f,%3.3f\n",F_0[0],F_0[1],F_0[2]);
+	this->PE+=-G*this->m*p2->m/R_mag;
 
 }
 
@@ -91,7 +96,7 @@ void nbd_object::corrections(double del_t)
 	this->r=elementwise_sum(r_corr,this->r);
 	//printf("new_r=%3.3f,%3.3f,%3.3f\n old_r=%3.3f,%3.3f,%3.3f\n",r_new[0],r_new[1],r_new[2],r[0],r[1],r[2]);
 	//
-	
+	this->sugg_del_t=sqrt((neta*(norm(F_0)*norm(F_2_t0)+pow(norm(F_1),2)))/(norm(F_1)*norm(F_3_t0)+pow(norm(F_2_t0),2)));
 	this->F_0={0.0,0.0,0.0};
 	this->F_1={0.0,0.0,0.0};
 	this->F_0_t0={0.0,0.0,0.0};
@@ -102,5 +107,5 @@ void nbd_object::corrections(double del_t)
 
 void nbd_object::print_info()
 {
-	printf("Particle ID %7d of mass %3.1f is at %3.3f,%3.3f,%3.3f\n",id,m,r[0],r[1],r[2]);
+	printf("Particle ID %7d of mass %3.1f is at %3.3f,%3.3f,%3.3f with vel %3.3f,%3.3f,%3.3f\n",id,m,r[0],r[1],r[2],v[0],v[1],v[2]);
 }
