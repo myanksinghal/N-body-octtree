@@ -25,7 +25,7 @@ class nbd_object
 		nbd_object(long id_in,float m_in,vector<double> r_in, vector<double> v_in);
 		void advance_timestep(double del_t);
 		void corrections(double del_t);
-		void primary_time_advance(double del_t);
+		void primary_time_advance(double del_t,bool* start_flag);
 		void calculate_force(nbd_object *p2);
 		void print_info();
 };

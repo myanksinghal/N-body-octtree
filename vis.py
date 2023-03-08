@@ -9,22 +9,26 @@ df=pd.read_csv('test_data_file.csv')
 
 save_path='anim/'
 N_particles=10000
-num_updates=100
+num_updates=755
+scale=20
+mass_scale=3000
 frames=num_updates;
 def process(num):
+    plt.style.use(['dark_background'])
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     del_t=0.1
     red_df=df.iloc[num*N_particles:(num+1)*N_particles]
     ax.clear()
-    for i in range(0,len(red_df)):
-        ax.scatter(red_df.iloc[i].x, red_df.iloc[i].y, red_df.iloc[i].z, s=red_df.iloc[i].mass)
-    ax.set_xlim(-100,100)
-    ax.set_ylim(-100,100)
-    ax.set_zlim(-100,100)
-    fig.savefig(f"{save_path}{num}.png")
+    ax.scatter(red_df.x, red_df.y, red_df.z, s=red_df.mass*mass_scale,c='white',marker='o',alpha=0.5)
+    ax.set_xlim(-scale,scale)
+    ax.set_ylim(-scale,scale)
+    ax.set_zlim(-scale,scale)
+    plt.axis('off')
+
+    fig.savefig(f"{save_path}{num}.png",dpi=600)
     plt.close(fig)
     
     
-Parallel(n_jobs=10)(delayed(process)(num) for num in tqdm(range(0,frames)))
+Parallel(n_jobs=6)(delayed(process)(num) for num in tqdm(range(0,frames)))
 

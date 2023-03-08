@@ -53,10 +53,12 @@ outfile=fopen("test_data_file.csv","w" );
 fprintf(outfile,"time,id,mass,x,y,z,vx,vy,vz,KE,PE\n");
 double del_t=0.001;
 double output_timestep=0.1;
-double integration_time=100;
+double integration_time=1000;
 bool start_flag=true;
 while(integration_time>0)
-{	
+{
+	printf("Start value is %d\n",start_flag);	
+
 	integration_time-=del_t;
 	output_timestep-=del_t;
 	printf("Root size is %5.2f\n",temp_sys.max_size);
@@ -92,9 +94,8 @@ while(integration_time>0)
 
 	//temp_sys.stars[0].print_info();
 	//temp_sys.stars[1].print_info();
-	temp_sys.apply_force_updates(del_t);
-	
-	
+	del_t=temp_sys.apply_force_updates(del_t,&start_flag);
+/*	
 	OctTree *tree_corrections= new OctTree(cent,temp_sys.max_size);
 	printf("Tree Creation success\n");	
 	for(auto star_iterator=begin(temp_sys.stars); star_iterator!=end(temp_sys.stars); ++star_iterator)
@@ -106,7 +107,7 @@ while(integration_time>0)
 	//tree->print_tree();
 	for(auto it=temp_sys.stars.begin();it<temp_sys.stars.end();++it)
 	{
-	//	tree_corrections->traverse(&*it);
+		tree_corrections->traverse(&*it);
 	}
 	delete tree_corrections;
 
@@ -115,9 +116,11 @@ while(integration_time>0)
 
 	//printf("Energy of system is %1.5f, %1.5f\n",temp_sys.total_KE,temp_sys.total_PE);
 
-	//del_t=temp_sys.apply_corrections(del_t);
-	printf("Del t is %3.3f\n \n",del_t);
+	del_t=temp_sys.apply_corrections(del_t);
 
+*/
+
+	printf("Del t is %3.7f\n \n",del_t);
 
 }
 fclose(outfile);

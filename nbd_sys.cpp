@@ -109,25 +109,32 @@ void nbd_sys::force_calculations()
 }
 
 
-void nbd_sys::apply_force_updates(double del_t)
+double nbd_sys::apply_force_updates(double del_t,bool* start_flag)
 {
 	double temp_max_r=0.0;
+	double min_del_t=0.1;
 	for(int particle=0; particle<num_objects; particle++)
 	{
-		stars[particle].primary_time_advance(del_t);
+		stars[particle].primary_time_advance(del_t,start_flag);
+		if(min_del_t>stars[particle].sugg_del_t)
+		{min_del_t=stars[particle].sugg_del_t;}
 		double temp_num=norm(stars[particle].r);
 		if(temp_max_r<=temp_num)
 		{temp_max_r=temp_num;}
 	}
+	
+	this->time+=del_t;
 	this->max_size=temp_max_r+5.0;
+	*start_flag=false;
+	return min_del_t;
 }
 
 double nbd_sys::apply_corrections(double del_t)
 {
 	double temp_max_r=0.0;
-	double min_del_t=1;
+	double min_del_t=0.01;
 	for(int particle=0; particle<num_objects; particle++)
-	{
+	{	
 		stars[particle].corrections(del_t);
 		double temp_num=norm(stars[particle].r);
 		if(min_del_t>stars[particle].sugg_del_t)
@@ -146,7 +153,7 @@ void nbd_sys::store_snapshot(FILE * outfile)
 	for (auto it = this->stars.begin(); it != this->stars.end(); it++) 
 	{
 		nbd_object f=*it;
-		fprintf(outfile,"%8.3f,%7d,%7.8f,%7.12f,%7.12f,%7.12f,%7.12f,%7.12f,%7.12f,%8.10f,%8.10f\n",this->time, f.id, f.m, f.r[0], f.r[1],f.r[2],f.v[0], f.v[1],f.v[2],f.KE,f.PE);
+		fprintf(outfile,"%8.8f,%7d,%7.8f,%7.12f,%7.12f,%7.12f,%7.12f,%7.12f,%7.12f,%8.10f,%8.10f\n",this->time, f.id, f.m, f.r[0], f.r[1],f.r[2],f.v[0], f.v[1],f.v[2],f.KE,f.PE);
 	}
 }
 
