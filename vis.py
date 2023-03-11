@@ -8,8 +8,8 @@ from joblib import Parallel, delayed
 df=pd.read_csv('test_data_file.csv')
 
 save_path='anim/'
-N_particles=10000
-num_updates=755
+N_particles=8200
+num_updates=1247
 scale=20
 mass_scale=3000
 frames=num_updates;

@@ -9,7 +9,7 @@ from astropy.table import Table
 
 df=pd.read_csv('test_data_file.csv')
 
-N_particles=10000
+N_particles=8200
 
 table_array=[]
 number_timesteps=int(len(df)/N_particles)
@@ -59,5 +59,6 @@ r_075=mass_fraction_radii(table_array,0.75)
 plt.plot(r_025)
 plt.plot(r_05)
 plt.plot(r_075)
+plt.yscale('log')
 
 plt.savefig("mass_radii.png")

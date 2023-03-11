@@ -99,43 +99,6 @@ void nbd_object::primary_time_advance(double del_t,bool* start_flag)
 	this->F_1={0.0,0.0,0.0};
 }
 
-void nbd_object::corrections(double del_t)
-{
-	vector<double> F_0_t0=scaling_vector(this->F_0_t0,G);
-	vector<double> F_1_t0=scaling_vector(this->F_1_t0,G);
-	vector<double> F_0=scaling_vector(this->F_0, G);
-	vector<double> F_1=scaling_vector(this->F_1, G);
-
-	vector<double> temp0=elementwise_sum(F_0_t0, scaling_vector(F_0, -1.0));
-	temp0=scaling_vector(temp0, -6/(del_t*del_t));
-	vector<double> temp1=elementwise_sum(F_1, scaling_vector(F_1_t0, 2));
-	temp1=scaling_vector(temp1, -2/(del_t));
-
-	vector<double> F_2_t0=elementwise_sum(temp0, temp1);
-
-	temp0=elementwise_sum(F_0_t0, scaling_vector(F_0, -1.0));
-	temp0=scaling_vector(temp0, 12/(del_t*del_t*del_t));
-	temp1=elementwise_sum(F_1, F_1_t0);
-	temp1=scaling_vector(temp1, 6/(del_t*del_t));
-
-	vector<double> F_3_t0=elementwise_sum(temp0, temp1);
-
-
-	//printf("Force in advance timestep is %3.10f,%3.10f,%3.10f\n",F[0],F[1],F[2]);
-	vector<double> v_corr=elementwise_sum(scaling_vector(F_2_t0, del_t*del_t*del_t/6),scaling_vector(F_3_t0,del_t*del_t*del_t*del_t/24));
-	this->v=elementwise_sum(v_corr, this->v);
-	vector<double> r_corr=elementwise_sum(scaling_vector(F_2_t0,del_t*del_t*del_t*del_t/24),scaling_vector(F_3_t0,del_t*del_t*del_t*del_t*del_t/120));
-	this->r=elementwise_sum(r_corr,this->r);
-	//printf("new_r=%3.3f,%3.3f,%3.3f\n old_r=%3.3f,%3.3f,%3.3f\n",r_new[0],r_new[1],r_new[2],r[0],r[1],r[2]);
-	//
-	this->sugg_del_t=sqrt((neta*(norm(F_0)*norm(F_2_t0)+pow(norm(F_1),2)))/(norm(F_1)*norm(F_3_t0)+pow(norm(F_2_t0),2)));
-	this->F_0={0.0,0.0,0.0};
-	this->F_1={0.0,0.0,0.0};
-	this->F_0_t0={0.0,0.0,0.0};
-	this->F_1_t0={0.0,0.0,0.0};
-
-
-}
 
 void nbd_object::print_info()
 {
