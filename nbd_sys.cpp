@@ -1,5 +1,6 @@
 #include "nbd_sys.h"
 #include "nbd_object.h"
+#include "consts.h"
 #include <cstdio>
 #include <cstdlib>
 #include <random>
@@ -110,28 +111,29 @@ void nbd_sys::force_calculations()
 }
 
 
-double nbd_sys::apply_force_updates(double del_t,bool* start_flag)
+void nbd_sys::apply_force_updates(bool* start_flag,unsigned int current_block)
 {
 	double temp_max_r=0.0;
-	double min_del_t=0.1;
-
+	int count=0;
 	#pragma omp parallel for
 	for(int particle=0; particle<num_objects; particle++)
 	{
-		stars[particle].primary_time_advance(del_t,start_flag);
+		if(current_block%stars[particle].t_block==0)
+		{count++;
+		stars[particle].primary_time_advance(t1*pow(2,stars[particle].t_block-1),start_flag);
+		}
 	}
 	for(int particle=0; particle<num_objects; particle++)
 	{
-		if(min_del_t>stars[particle].sugg_del_t)
-		{min_del_t=stars[particle].sugg_del_t;}
+		//printf("Particle num %d in block %d\n", particle, stars[particle].t_block);	
 		double temp_num=norm(stars[particle].r);
 		if(temp_max_r<=temp_num)
 		{temp_max_r=temp_num;}
 	}	
-	this->time+=del_t;
+	printf("Number of stars in this block: %d \n",count);
 	this->max_size=temp_max_r+5.0;
 	*start_flag=false;
-	return min_del_t;
+	this->time+=t1;
 }
 
 

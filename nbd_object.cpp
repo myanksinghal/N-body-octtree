@@ -16,6 +16,8 @@ nbd_object::nbd_object(long id_in,float m_in,vector<double> r_in, vector<double>
 			PE=0.0;
 			KE=0.0;
 			sugg_del_t=0.1;
+			t_block=1;
+			tblock_double_flip=true;
 
 
 }
@@ -90,13 +92,24 @@ void nbd_object::primary_time_advance(double del_t,bool* start_flag)
 	//printf("new_r=%3.3f,%3.3f,%3.3f\n old_r=%3.3f,%3.3f,%3.3f\n",r_new[0],r_new[1],r_new[2],r[0],r[1],r[2]);
 	//
 	this->sugg_del_t=sqrt((neta*(norm(F_0)*norm(F_2_t0)+pow(norm(F_1),2)))/(norm(F_1)*norm(F_3_t0)+pow(norm(F_2_t0),2)));
-	//printf("Suggested delta t is %4.8f\n",this->sugg_del_t);
 
+	if(this->sugg_del_t<del_t && this->t_block!=1)
+	{
+		this->t_block--;
 	}
+	else if(this->tblock_double_flip && this->sugg_del_t>2*del_t && this->t_block<n_time_blocks-1)
+	{
+		this->t_block++;
+	}
+	//printf("New t_block is %d\n", this->t_block);
+	//printf("Sugg time is %3.7f\n",this->sugg_del_t);
+	}
+	this->tblock_double_flip= !this->tblock_double_flip;
 	this->F_0_t0=this->F_0;
 	this->F_1_t0=this->F_1;
 	this->F_0={0.0,0.0,0.0};
 	this->F_1={0.0,0.0,0.0};
+
 }
 
 

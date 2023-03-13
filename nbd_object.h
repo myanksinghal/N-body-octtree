@@ -14,6 +14,7 @@ class nbd_object
 		double PE;
 		double KE;
 		double sugg_del_t;
+		unsigned int t_block;
 		vector<double> r;
 		vector<double> v;
 		vector<double> F_0;
@@ -27,6 +28,9 @@ class nbd_object
 		void primary_time_advance(double del_t,bool* start_flag);
 		void calculate_force(nbd_object *p2);
 		void print_info();
+	
+	private:
+		bool tblock_double_flip;
 };
 
 #endif

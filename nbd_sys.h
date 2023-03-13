@@ -24,7 +24,7 @@ class nbd_sys
 		nbd_sys(FILE *infile);
 		void print_sys();
 		void force_calculations();
-		double apply_force_updates(double del_t,bool* start_flag);
+		void apply_force_updates(bool* start_flag,unsigned int current_block);
 		void store_snapshot(FILE *outfile);
 		void external_potential();
 		void system_energy();
