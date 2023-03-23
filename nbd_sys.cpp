@@ -40,16 +40,16 @@ void nbd_sys::scale_standard_units()
 	for (auto it = this->stars.begin(); it != this->stars.end(); it++) 
 	{
 		total_mass+=it->m;
-		COM_r=elementwise_sum(COM_r,scaling_vector(it->r, it->m));
-		COM_v=elementwise_sum(COM_v,scaling_vector(it->v, it->m));
+		COM_r=elementwise_sum(COM_r,it->r, it->m);
+		COM_v=elementwise_sum(COM_v,it->v, it->m);
 	}
 	COM_r=scaling_vector(COM_r,-1/total_mass);
 	COM_v=scaling_vector(COM_v,-1/total_mass);
 
 	for (auto it = this->stars.begin(); it != this->stars.end(); it++) 
 	{
-		it->r=elementwise_sum(it->r,COM_r);
-		it->v=elementwise_sum(it->v,COM_v);
+		it->r=elementwise_sum(it->r,COM_r,1);
+		it->v=elementwise_sum(it->v,COM_v,1);
 		it->m=it->m/total_mass;
 	}
 
@@ -114,23 +114,20 @@ void nbd_sys::force_calculations()
 void nbd_sys::apply_force_updates(bool* start_flag,unsigned int current_block)
 {
 	double temp_max_r=0.0;
-	int count=0;
+	bool is_current_block=false;
 	#pragma omp parallel for
 	for(int particle=0; particle<num_objects; particle++)
 	{
-		if(current_block%stars[particle].t_block==0)
-		{count++;
-		stars[particle].primary_time_advance(t1*pow(2,stars[particle].t_block-1),start_flag);
-		}
+		is_current_block=current_block%stars[particle].t_block==0;
+		stars[particle].primary_time_advance(t1*pow(2,stars[particle].t_block-1),start_flag, &is_current_block);
+		//printf("Particle num %d in block %d\n", particle, stars[particle].t_block);	
 	}
 	for(int particle=0; particle<num_objects; particle++)
-	{
-		//printf("Particle num %d in block %d\n", particle, stars[particle].t_block);	
+	{	
 		double temp_num=norm(stars[particle].r);
 		if(temp_max_r<=temp_num)
 		{temp_max_r=temp_num;}
 	}	
-	printf("Number of stars in this block: %d \n",count);
 	this->max_size=temp_max_r+5.0;
 	*start_flag=false;
 	this->time+=t1;

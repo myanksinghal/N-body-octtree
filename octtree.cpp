@@ -148,8 +148,8 @@ bool OctTree::insert(nbd_object *P_in)
 			else
 			{
 				COM->m=COM->m+temp_star->m;
-				COM->r=elementwise_sum(COM->r,scaling_vector(temp_star->r, temp_star->m));
-				COM->r=elementwise_sum(COM->r,scaling_vector(temp_star->r, temp_star->m));
+				COM->r=elementwise_sum(COM->r,temp_star->r, temp_star->m);
+				COM->r=elementwise_sum(COM->r,temp_star->r, temp_star->m);
 			}
 			if(this->oct_1->insert(temp_star)) continue;	
 			if(this->oct_2->insert(temp_star)) continue;	
@@ -163,8 +163,8 @@ bool OctTree::insert(nbd_object *P_in)
 	}
 	//Add the new inserting point to the COM values for the node
 	COM->m=COM->m+P_in->m;
-	COM->r=elementwise_sum(COM->r,scaling_vector(P_in->r, P_in->m));
-	COM->v=elementwise_sum(COM->v,scaling_vector(P_in->v, P_in->m));
+	COM->r=elementwise_sum(COM->r,P_in->r, P_in->m);
+	COM->v=elementwise_sum(COM->v,P_in->v, P_in->m);
 	if(this->oct_1->insert(P_in)) return true;	
 	if(this->oct_2->insert(P_in)) return true;	
 	if(this->oct_3->insert(P_in)) return true;	
@@ -252,7 +252,7 @@ bool OctTree::traverse(nbd_object *P_in)
 	float s=this->boundary.halfDimension;
 	vector<double> corrected_r_COM=scaling_vector(this->COM->r,1/this->COM->m);
 	vector<double> corrected_v_COM=scaling_vector(this->COM->v,1/this->COM->m);
-	double d=norm(elementwise_sum(P_in->r,scaling_vector(corrected_r_COM,-1)));
+	double d=norm(elementwise_sum(P_in->r,corrected_r_COM,-1));
 	if(s/d<THETA_THRESHOLD)
 	{
 		//Creation of temporary object with the COM params and force calculation 

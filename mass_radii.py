@@ -42,13 +42,13 @@ def mass_fraction_radii(test,target_mass_frac):
         while(True):
             temp_red=t[com_len<rad]
             mass_frac=np.sum(temp_red['Mass'])/total_mass
-            #print(mass_frac)
-            if (mass_frac/target_mass_frac<1.15 and mass_frac/target_mass_frac>0.995):
+            print(mass_frac/target_mass_frac)
+            if (mass_frac/target_mass_frac<1.15 and mass_frac/target_mass_frac>0.985):
                 break
             if mass_frac<target_mass_frac:
                 rad=rad+0.01
             elif mass_frac>target_mass_frac:
-                rad=rad-0.005
+                rad=rad-0.001
         rads[inx]=rad
     return rads
 

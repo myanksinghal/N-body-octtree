@@ -6,12 +6,12 @@
 #include <cmath>
 using namespace std;
 
-vector<double> elementwise_sum(vector<double> const &V1, vector<double> const &V2)
+vector<double> elementwise_sum(vector<double> const &V1, vector<double> const &V2,double scale_factor)
 {
 	vector<double> result;
 	for(int i=0;i<V1.size();i++)
 	{
-		result.push_back(V1[i]+V2[i]);
+		result.push_back(V1[i]+scale_factor*V2[i]);
 	}
 	return result;
 }
