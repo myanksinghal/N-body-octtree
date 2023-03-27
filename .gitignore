@@ -6,3 +6,7 @@ anim/
 *.csv
 *DS_Store
 *.ipynb
+*.mp4
+stdout
+*.png
+main

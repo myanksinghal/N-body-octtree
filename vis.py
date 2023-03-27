@@ -8,9 +8,9 @@ from joblib import Parallel, delayed
 df=pd.read_csv('test_data_file.csv')
 
 save_path='anim/'
-N_particles=1000
-num_updates=168
-scale=1
+N_particles=8200
+num_updates=int(len(df)/N_particles)
+scale=50
 mass_scale=1000
 frames=num_updates;
 def process(num):

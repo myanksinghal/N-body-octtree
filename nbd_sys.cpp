@@ -8,7 +8,16 @@
 #include <omp.h>
 
 using namespace std;
+extern bool decrease_nstep;
 
+/**
+ * @brief Construct a new nbd sys::nbd sys object if input file is not provided
+ * 
+ * @param num_objects_in Number of objects in the simulation
+ * @param mass_lower Lower limit of the mass distribution
+ * @param mass_upper Upper limit of the mass distribution
+ * @param max_size Maximum size of the simulation cube
+ */
 nbd_sys::nbd_sys(long num_objects_in,float mass_lower, float mass_upper,double max_size)
 {
 	uniform_real_distribution<double> mass_dist(mass_lower,mass_upper); 
@@ -32,6 +41,11 @@ nbd_sys::nbd_sys(long num_objects_in,float mass_lower, float mass_upper,double m
 	this->total_PE=0.0;
 }
 
+/**
+ * @brief Scale the system to standard N body units
+ * 
+ */
+//TODO: Fix this for Energy scaling
 void nbd_sys::scale_standard_units()
 {
 	vector<double> COM_r={0.0,0.0,0.0};
@@ -59,8 +73,11 @@ void nbd_sys::scale_standard_units()
 
 }
 
-
-//TODO: Finish this to add input file for stars
+/**
+ * @brief Construct a new nbd sys::nbd sys object from input file
+ * 
+ * @param infile Pointer to the input file
+ */
 nbd_sys::nbd_sys(FILE *infile)
 {	
 	if(infile==NULL)
@@ -86,6 +103,10 @@ nbd_sys::nbd_sys(FILE *infile)
 
 }
 
+/**
+ * @brief Print the information of objects inside the system
+ * 
+ */
 void nbd_sys::print_sys()
 {
 	for(int i=0;i<num_objects;i++)
@@ -94,6 +115,10 @@ void nbd_sys::print_sys()
 	}
 }
 
+/**
+ * @brief Calculate the force between all the objects in the system with N^2 operations. Used only for testing and small systems.
+ * 
+ */
 void nbd_sys::force_calculations()
 {
 	for(int particle=0; particle<num_objects; particle++)
@@ -110,10 +135,16 @@ void nbd_sys::force_calculations()
 
 }
 
-
+/**
+ * @brief Apply the force updates to all the objects in the system, based on the time block the flag for corrections is also passed.
+ * 
+ * @param start_flag Flag to indicate if this is the first time step
+ * @param current_block Current time block
+ */
 void nbd_sys::apply_force_updates(bool* start_flag,unsigned int current_block)
 {
 	double temp_max_r=0.0;
+	unsigned int count=0;
 	bool is_current_block=false;
 	#pragma omp parallel for
 	for(int particle=0; particle<num_objects; particle++)
@@ -124,17 +155,30 @@ void nbd_sys::apply_force_updates(bool* start_flag,unsigned int current_block)
 	}
 	for(int particle=0; particle<num_objects; particle++)
 	{	
+		if(current_block%stars[particle].t_block==0)
+			count++;
 		double temp_num=norm(stars[particle].r);
 		if(temp_max_r<=temp_num)
 		{temp_max_r=temp_num;}
-	}	
+	}
+	
+	if(current_block==1)
+	{
+		if(count==0)
+			decrease_nstep=true;
+	}
+	//printf("Corrector calc for %d particles\n",count);	
 	this->max_size=temp_max_r+5.0;
 	*start_flag=false;
 	this->time+=t1;
 }
 
 
-
+/**
+ * @brief Store the snapshot of the system in a file
+ * 
+ * @param outfile File pointer to the output file
+ */
 void nbd_sys::store_snapshot(FILE * outfile)
 {
 	for (auto it = this->stars.begin(); it != this->stars.end(); it++) 
@@ -144,11 +188,15 @@ void nbd_sys::store_snapshot(FILE * outfile)
 	}
 }
 
+//TODO: Implement the external potential
 void nbd_sys::external_potential()
 {
 }
 
-
+/**
+ * @brief Calculate the total energy of the system using the stored values of KE and PE of each object
+ * 
+ */
 void nbd_sys::system_energy()
 {
 	this->total_KE=0.0;

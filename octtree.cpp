@@ -202,6 +202,10 @@ void OctTree::subdivide()
 
 }
 
+/**
+ * @brief Prints the tree
+ * 
+ */
 void OctTree::print_tree()
 {
 	printf("Printing this node\n");
