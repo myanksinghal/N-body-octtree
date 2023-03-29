@@ -4,14 +4,15 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.animation as animation
 from tqdm import tqdm
 from joblib import Parallel, delayed
-
+import seaborn as sns
 df=pd.read_csv('test_data_file.csv')
 
 save_path='anim/'
 N_particles=8200
 num_updates=int(len(df)/N_particles)
-scale=50
+scale=200
 mass_scale=1000
+KDE_FLAG=True
 frames=num_updates;
 def process(num):
     plt.style.use(['dark_background'])
@@ -28,6 +29,14 @@ def process(num):
 
     fig.savefig(f"{save_path}{num}.png",dpi=600)
     plt.close(fig)
+    
+    if(KDE_FLAG):
+        plt.figure()
+        sns.kdeplot(data=red_df, x='x', y='y', hue='mass', fill=False,palette='pastel',levels=7)
+        plt.xlim([-scale,scale])
+        plt.ylim([-scale,scale])
+        plt.savefig(f"{save_path}kde_{num}.png")
+        plt.close(fig)
     
     
 Parallel(n_jobs=6)(delayed(process)(num) for num in tqdm(range(0,frames)))
