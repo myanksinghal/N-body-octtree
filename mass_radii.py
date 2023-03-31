@@ -31,7 +31,7 @@ for inx in tqdm(range(0,number_timesteps)):
 
 print("Data Loaded\n")
 
-def kde_density_center(t,recursions=3):
+def kde_density_center(t,recursions=5):
     X=np.array(t['X']).T
     #print(X.shape)
     Mass=np.array(t['Mass'])
@@ -44,7 +44,7 @@ def kde_density_center(t,recursions=3):
      #   print(i)
       #  print(maxima)
        # print(minima)
-        space = [np.linspace(mini,maxi,20) for mini, maxi in zip(minima,maxima)]
+        space = [np.linspace(mini,maxi,50) for mini, maxi in zip(minima,maxima)]
         grid = np.meshgrid(*space)
         coords = np.vstack(map(np.ravel, grid))
         density = kde(coords)
@@ -89,6 +89,7 @@ for inx in tqdm(range(0,len(table_array))):
         cod=kde_density_center(t,recursions=5)
         cod_array.append(cod)
 
+#Parallel(n_jobs=6)(delayed(process)(num) for num in tqdm(range(0,frames)))
 
 r_01=mass_fraction_radii(table_array,cod_array,0.1)
 r_05=mass_fraction_radii(table_array,cod_array,0.5)

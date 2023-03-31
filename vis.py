@@ -8,11 +8,11 @@ import seaborn as sns
 df=pd.read_csv('test_data_file.csv')
 
 save_path='anim/'
-N_particles=8200
+N_particles=8200*2
 num_updates=int(len(df)/N_particles)
-scale=200
+scale=400
 mass_scale=1000
-KDE_FLAG=True
+KDE_FLAG=False
 frames=num_updates;
 def process(num):
     plt.style.use(['dark_background'])
