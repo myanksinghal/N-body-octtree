@@ -23,8 +23,8 @@ nbd_sys::nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double
 	uniform_real_distribution<double> mass_dist(mass_lower, mass_upper);
 
 	this->max_size = max_size;
-	uniform_real_distribution<double> r_dist(-max_size, max_size);
-	uniform_real_distribution<double> v_dist(-0.0, 0.0);
+	normal_distribution<double> r_dist(0.0, max_size);
+	normal_distribution<double> v_dist(0.0, 10.0);
 
 	default_random_engine re;
 	default_random_engine ve;
@@ -39,6 +39,12 @@ nbd_sys::nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double
 	this->time = 0.0;
 	this->total_KE = 0.0;
 	this->total_PE = 0.0;
+
+	if(external_body)
+		{
+			this->external_star=new nbd_object(-1,ext_mass,ext_r,ext_v);
+		};
+
 }
 
 /**
@@ -183,8 +189,9 @@ void nbd_sys::store_snapshot(FILE *outfile)
 }
 
 // TODO: Implement the external potential
-void nbd_sys::external_potential()
+void nbd_sys::external_potential(nbd_object *in_star)
 {
+	in_star->calculate_force(this->external_star);
 }
 
 /**

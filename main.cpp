@@ -20,17 +20,19 @@ using namespace std;
 int main()
 {
 
-	FILE *infile;
-	infile = fopen("n6.pos_test", "r");
-	nbd_sys temp_sys(infile);
-	fclose(infile);
+//	FILE *infile;
+//	infile = fopen("n6.pos_test", "r");
+//	nbd_sys temp_sys(infile);
+//	fclose(infile);
+	nbd_sys temp_sys(15000, 1.0, 100.0, 1000.0);
+
 	vector<double> cent = {0.0, 0.0, 0.0};
 	FILE *outfile;
 
 	outfile = fopen("test_data_file.csv", "w");
 	fprintf(outfile, "time,id,mass,x,y,z,vx,vy,vz,KE,PE\n");
-	double output_timestep = 0.5;
-	double integration_time = 10000;
+	double output_timestep = -0.1;
+	double integration_time = 100000;
 	bool start_flag = true;
 	double system_energy_start = 0.0;
 	double previous_system_energy = 0.0;
@@ -58,6 +60,8 @@ int main()
 			it->F_1_t0 = it->F_1;
 			it->F_0 = {0.0, 0.0, 0.0};
 			it->F_1 = {0.0, 0.0, 0.0};
+			if(external_body)
+				{temp_sys.external_potential(&*it);}
 			tree->traverse(&*it);
 		}
 		delete tree;
@@ -69,7 +73,7 @@ int main()
 				it->KE = (0.5) * (it->m) * pow(norm(it->v), 2);
 			}
 			temp_sys.store_snapshot(outfile);
-			output_timestep = 0.5;
+			output_timestep = 20.0;
 		}
 
 		if (true)

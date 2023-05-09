@@ -16,6 +16,7 @@ class nbd_sys
 public:
 	long num_objects;
 	vector<nbd_object> stars;
+	nbd_object *external_star;
 	double time;
 	double max_size;
 	double total_KE;
@@ -26,7 +27,7 @@ public:
 	void force_calculations();
 	void apply_force_updates(bool *start_flag, unsigned int current_block);
 	void store_snapshot(FILE *outfile);
-	void external_potential();
+	void external_potential(nbd_object *in_star);
 	void system_energy();
 	void scale_standard_units();
 };
