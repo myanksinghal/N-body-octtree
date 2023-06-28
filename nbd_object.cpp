@@ -4,6 +4,7 @@
 #include <vector>
 #include "consts.h"
 
+extern bool increase_nstep;
 /**
  * @brief Construct a new nbd object::nbd object object
  *
@@ -34,12 +35,18 @@ nbd_object::nbd_object(long id_in, float m_in, vector<double> r_in, vector<doubl
  *
  * @param p2 Second object
  */
-void nbd_object::calculate_force(nbd_object *p2)
+void nbd_object::calculate_force(nbd_object *p2, bool external_body)
 {
 	// Softening the radius for close encounters
 	vector<double> R_vec = elementwise_sum(r, p2->r, -1);
 	double R_mag = norm(R_vec);
-	double softened_R_Mag = sqrt(pow(SOFTENING_PARAM, 2) + pow(R_mag, 2));
+	double softened_R_Mag;
+	if (external_body==true){
+		softened_R_Mag = sqrt(pow(ext_halfmass_rad, 2) + pow(R_mag, 2));
+		}
+	else{
+		softened_R_Mag = sqrt(pow(SOFTENING_PARAM, 2) + pow(R_mag, 2));
+		}
 	vector<double> V_vec = elementwise_sum(v, p2->v, -1);
 	double V_mag = norm(V_vec);
 
@@ -52,7 +59,7 @@ void nbd_object::calculate_force(nbd_object *p2)
 	this->F_0 = elementwise_sum(this->F_0, F_0, 1);
 	this->F_1 = elementwise_sum(this->F_1, F_1, 1);
 
-	this->PE += -G * this->m * p2->m / R_mag;
+	this->PE += -G * this->m * p2->m / softened_R_Mag;
 }
 
 /**
@@ -76,6 +83,9 @@ void nbd_object::primary_time_advance(double del_t, bool *start_flag, bool *in_c
 
 	this->r = r_new;
 	this->v = v_new;
+
+
+
 	if (!*start_flag && *in_current_block)
 	{
 		vector<double> F_0_t0 = scaling_vector(this->F_0_t0, G);
@@ -105,9 +115,17 @@ void nbd_object::primary_time_advance(double del_t, bool *start_flag, bool *in_c
 		this->sugg_del_t = sqrt((neta * (norm(F_0) * norm(F_2_t0) + pow(norm(F_1), 2))) / (norm(F_1) * norm(F_3_t0) + pow(norm(F_2_t0), 2)));
 
 		// If the suggested timestep is smaller than the current and not already in the smallest block, decrease the block number
-		if (this->sugg_del_t < del_t && this->t_block != 1)
+		if (this->sugg_del_t < del_t)
 		{
+			if(this->t_block !=1)
+			{
 			this->t_block--;
+			}
+			else if (this->sugg_del_t < 0.25 * del_t)
+			{
+				increase_nstep=true;
+			}
+
 		}
 		// If the suggested timestep is larger than the next time block and not already in the largest block, increase the block number
 		else if (this->tblock_double_flip && this->sugg_del_t > 2 * del_t && this->t_block < n_time_blocks - 1)

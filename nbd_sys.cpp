@@ -18,13 +18,13 @@ extern bool decrease_nstep;
  * @param mass_upper Upper limit of the mass distribution
  * @param max_size Maximum size of the simulation cube
  */
-nbd_sys::nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double max_size)
+nbd_sys::nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double max_size, double max_vel)
 {
 	uniform_real_distribution<double> mass_dist(mass_lower, mass_upper);
 
 	this->max_size = max_size;
 	normal_distribution<double> r_dist(0.0, max_size);
-	normal_distribution<double> v_dist(0.0, 10.0);
+	normal_distribution<double> v_dist(0.0, max_vel);
 
 	default_random_engine re;
 	default_random_engine ve;
@@ -35,7 +35,6 @@ nbd_sys::nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double
 		nbd_object temp_star(i, mass_dist(re), {r_dist(re), r_dist(re), r_dist(re)}, {v_dist(ve), v_dist(ve), v_dist(ve)});
 		stars.push_back(temp_star);
 	}
-	scale_standard_units();
 	this->time = 0.0;
 	this->total_KE = 0.0;
 	this->total_PE = 0.0;
@@ -44,6 +43,8 @@ nbd_sys::nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double
 		{
 			this->external_star=new nbd_object(-1,ext_mass,ext_r,ext_v);
 		};
+
+	scale_standard_units();
 
 }
 
@@ -72,6 +73,9 @@ void nbd_sys::scale_standard_units()
 		it->v = elementwise_sum(it->v, COM_v, 1);
 		it->m = it->m / total_mass;
 	}
+
+	this->external_star->r=elementwise_sum(this->external_star->r,COM_r,1);
+	this->external_star->v=elementwise_sum(this->external_star->v,COM_v,1);
 }
 
 /**
@@ -102,6 +106,11 @@ nbd_sys::nbd_sys(FILE *infile)
 	this->num_objects = id;
 	this->time = 0.0;
 	this->max_size = max_size;
+
+	if(external_body)
+		{
+			this->external_star=new nbd_object(-1,ext_mass,ext_r,ext_v);
+		};
 }
 
 /**
@@ -191,7 +200,7 @@ void nbd_sys::store_snapshot(FILE *outfile)
 // TODO: Implement the external potential
 void nbd_sys::external_potential(nbd_object *in_star)
 {
-	in_star->calculate_force(this->external_star);
+	in_star->calculate_force(this->external_star,true);
 }
 
 /**

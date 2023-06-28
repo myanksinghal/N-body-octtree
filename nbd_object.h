@@ -31,7 +31,7 @@ public:
 
 	nbd_object(long id_in, float m_in, vector<double> r_in, vector<double> v_in);
 	void primary_time_advance(double del_t, bool *start_flag, bool *in_current_block);
-	void calculate_force(nbd_object *p2);
+	void calculate_force(nbd_object *p2,bool external_body=false);
 	void print_info();
 
 private:

@@ -21,7 +21,7 @@ public:
 	double max_size;
 	double total_KE;
 	double total_PE;
-	nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double max_size);
+	nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double max_size,double max_vel);
 	nbd_sys(FILE *infile);
 	void print_sys();
 	void force_calculations();

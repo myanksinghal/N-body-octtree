@@ -11,7 +11,7 @@ from scipy.stats import gaussian_kde
 
 df=pd.read_csv('test_data_file.csv')
 
-N_particles=8200
+N_particles=1000
 time_array=[]
 table_array=[]
 number_timesteps=int(len(df)/N_particles)
@@ -96,9 +96,9 @@ r_05=mass_fraction_radii(table_array,cod_array,0.5)
 r_025=mass_fraction_radii(table_array,cod_array,0.25)
 r_075=mass_fraction_radii(table_array,cod_array,0.75)
 
-plt.plot(time_array,r_01,label="1%")
+plt.plot(time_array,r_01,label="10%")
 plt.plot(time_array,r_025,label="25%")
-plt.plot(time_array,r_05,label="5%")
+plt.plot(time_array,r_05,label="50%")
 plt.plot(time_array,r_075,label="75%")
 plt.yscale('log')
 plt.legend()

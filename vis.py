@@ -8,15 +8,15 @@ import seaborn as sns
 df=pd.read_csv('test_data_file.csv')
 
 save_path='anim/'
-N_particles=8200*2
+N_particles=1000
 num_updates=int(len(df)/N_particles)
-scale=400
+scale=5
 mass_scale=1000
 KDE_FLAG=False
 frames=num_updates;
 def process(num):
     plt.style.use(['dark_background'])
-    fig = plt.figure()
+    fig = plt.figure(figsize=(16,9))
     ax = fig.add_subplot(projection='3d')
     del_t=0.1
     red_df=df.iloc[num*N_particles:(num+1)*N_particles]
@@ -27,7 +27,7 @@ def process(num):
     ax.set_zlim(-scale,scale)
     plt.axis('off')
 
-    fig.savefig(f"{save_path}{num}.png",dpi=600)
+    fig.savefig(f"{save_path}{num}.png",dpi=400)
     plt.close(fig)
     
     if(KDE_FLAG):
