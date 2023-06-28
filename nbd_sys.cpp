@@ -52,7 +52,6 @@ nbd_sys::nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double
  * @brief Scale the system to standard N body units
  *
  */
-// TODO: Fix this for Energy scaling
 void nbd_sys::scale_standard_units()
 {
 	vector<double> COM_r = {0.0, 0.0, 0.0};
@@ -74,8 +73,9 @@ void nbd_sys::scale_standard_units()
 		it->m = it->m / total_mass;
 	}
 
-	this->external_star->r=elementwise_sum(this->external_star->r,COM_r,1);
-	this->external_star->v=elementwise_sum(this->external_star->v,COM_v,1);
+	//Should not be done since this would result in the separation of the external potential from the center of the system 
+	//this->external_star->r=elementwise_sum(this->external_star->r,COM_r,1);
+	//this->external_star->v=elementwise_sum(this->external_star->v,COM_v,1);
 }
 
 /**
@@ -197,7 +197,6 @@ void nbd_sys::store_snapshot(FILE *outfile)
 	}
 }
 
-// TODO: Implement the external potential
 void nbd_sys::external_potential(nbd_object *in_star)
 {
 	in_star->calculate_force(this->external_star,true);
