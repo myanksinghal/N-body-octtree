@@ -20,7 +20,8 @@ extern bool decrease_nstep;
  */
 nbd_sys::nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double max_size, double max_vel)
 {
-	uniform_real_distribution<double> mass_dist(mass_lower, mass_upper);
+	
+
 
 	this->max_size = max_size;
 	normal_distribution<double> r_dist(0.0, max_size);
@@ -30,9 +31,13 @@ nbd_sys::nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double
 	default_random_engine ve;
 	num_objects = num_objects_in;
 
+	double mass_array[num_objects_in];
+	mass_dist_power_law(mass_lower,mass_upper,num_objects_in,mass_array);
+
+
 	for (int i = 0; i < num_objects_in; i++)
 	{
-		nbd_object temp_star(i, mass_dist(re), {r_dist(re), r_dist(re), r_dist(re)}, {v_dist(ve), v_dist(ve), v_dist(ve)});
+		nbd_object temp_star(i,mass_array[i], {r_dist(re), r_dist(re), r_dist(re)}, {v_dist(ve), v_dist(ve), v_dist(ve)});
 		stars.push_back(temp_star);
 	}
 	this->time = 0.0;
@@ -47,6 +52,23 @@ nbd_sys::nbd_sys(long num_objects_in, float mass_lower, float mass_upper, double
 	scale_standard_units();
 
 }
+
+void nbd_sys::mass_dist_power_law(float mass_lower, float mass_upper, long num_objects_in, double* mass_array)
+{
+	uniform_real_distribution<double> unif_dist(0, 1);
+	default_random_engine uni;
+	//double mass_array[num_objects_in];
+	for (int i=0; i<num_objects_in; i++)
+	{	//printf("%d\n",i);
+		*(mass_array+i)= pow(unif_dist(uni)*(pow(mass_upper,alpha+1)-pow(mass_lower,alpha+1)) + pow(mass_lower,alpha+1) , 1/(alpha+1)) ;
+	}
+
+	//x = [(x1^(n+1) - x0^(n+1))*y + x0^(n+1)]^(1/(n+1))
+	
+
+}
+
+
 
 /**
  * @brief Scale the system to standard N body units

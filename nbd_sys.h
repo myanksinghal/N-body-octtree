@@ -26,6 +26,7 @@ public:
 	void print_sys();
 	void force_calculations();
 	void apply_force_updates(bool *start_flag, unsigned int current_block);
+	void mass_dist_power_law(float mass_lower, float mass_upper, long num_objects_in,double* mass_array);
 	void store_snapshot(FILE *outfile);
 	void external_potential(nbd_object *in_star);
 	void system_energy();

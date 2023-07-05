@@ -8,6 +8,7 @@ const float G = 1.0;
 
 const double THETA_THRESHOLD = 0.4;
 const double SOFTENING_PARAM = 0.1;
+const float alpha=-2.35; //Power for powerlaw profile
 const int NODE_CAPACITY = 1;
 const double neta = 0.01;
 const double max_timestep = 0.01;
