@@ -24,7 +24,7 @@ int main()
 	//infile = fopen("n6.pos", "r");
 	//nbd_sys temp_sys(infile);
 	//fclose(infile);
-	nbd_sys temp_sys(1000, 0.2, 150.0, 2.0,0.27);
+	nbd_sys temp_sys(1000, 0.2, 150.0, 1.0,0.4);
 
 	vector<double> cent = {0.0, 0.0, 0.0};
 	FILE *outfile;
