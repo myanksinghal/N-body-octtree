@@ -15,7 +15,7 @@ N_particles=1000
 time_array=[]
 table_array=[]
 number_timesteps=int(len(df)/N_particles)
-
+#number_timesteps=10
 for inx in tqdm(range(0,number_timesteps)):
     t=df[inx*N_particles:(inx+1)*N_particles]
     #print(t)
@@ -61,6 +61,7 @@ def kde_density_center(t,recursions=5):
 
 def mass_fraction_radii(test,cod_array,target_mass_frac):
     rads=np.zeros(len(test))
+    max_rec=100000
     for inx in tqdm(range(0,len(test))):
         #print(inx)
         t=test[inx]
@@ -68,7 +69,11 @@ def mass_fraction_radii(test,cod_array,target_mass_frac):
         com=cod_array[inx]
         com_X=t['X']-com
         com_len=np.linalg.norm(com_X,axis=1)
-        rad=1
+        if inx>0 and rads[inx-1]>0:
+            rad=rads[inx]
+        else:
+            rad=0.1
+        rec_curr=max_rec
         while(True):
             temp_red=t[com_len<rad]
             mass_frac=np.sum(temp_red['Mass'])/total_mass
@@ -79,6 +84,12 @@ def mass_fraction_radii(test,cod_array,target_mass_frac):
                 rad=rad+0.01
             elif mass_frac>target_mass_frac:
                 rad=rad-0.001
+            if rec_curr==0:
+                rad=-1
+                print("recursion lim reached")
+                break
+            rec_curr=rec_curr-1
+                
         rads[inx]=rad
     return rads
 
@@ -91,12 +102,21 @@ for inx in tqdm(range(0,len(table_array))):
 
 #Parallel(n_jobs=6)(delayed(process)(num) for num in tqdm(range(0,frames)))
 
-r_01=mass_fraction_radii(table_array,cod_array,0.1)
+#r_01=mass_fraction_radii(table_array,cod_array,0.1)
 r_05=mass_fraction_radii(table_array,cod_array,0.5)
 r_025=mass_fraction_radii(table_array,cod_array,0.25)
 r_075=mass_fraction_radii(table_array,cod_array,0.75)
 
-plt.plot(time_array,r_01,label="10%")
+df=pd.DataFrame()
+df['time']=time_array
+#df['r_10p']=r_01
+df['r_25p']=r_025
+df['r_50p']=r_05
+df['r_75p']=r_075
+
+df.to_csv("mass_radii_df.csv")
+
+#plt.plot(time_array,r_01,label="10%")
 plt.plot(time_array,r_025,label="25%")
 plt.plot(time_array,r_05,label="50%")
 plt.plot(time_array,r_075,label="75%")

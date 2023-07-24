@@ -5,12 +5,12 @@ import matplotlib.animation as animation
 from tqdm import tqdm
 from joblib import Parallel, delayed
 import seaborn as sns
-df=pd.read_csv('test_data_file.csv')
+df=pd.read_csv('test_data_file.csv',low_memory=False)
 
 save_path='anim/'
 N_particles=1000
 num_updates=int(len(df)/N_particles)
-scale=5
+scale=7
 mass_scale=1000
 KDE_FLAG=False
 frames=num_updates;
@@ -25,7 +25,7 @@ def process(num):
     ax.set_xlim(-scale,scale)
     ax.set_ylim(-scale,scale)
     ax.set_zlim(-scale,scale)
-    plt.axis('off')
+    plt.axis(False)
 
     fig.savefig(f"{save_path}{num}.png",dpi=400)
     plt.close(fig)
@@ -40,4 +40,5 @@ def process(num):
     
     
 Parallel(n_jobs=6)(delayed(process)(num) for num in tqdm(range(0,frames)))
-
+#for num in tqdm(range(0,frames)):
+#    process(num)
